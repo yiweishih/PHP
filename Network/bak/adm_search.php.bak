@@ -1,0 +1,316 @@
+﻿<?php
+	session_start();
+    if(!isset($_SESSION["account"]) || ($_SESSION["account"]==""))
+	{
+        header("Location: login.php");
+    }
+	
+	include("mysql_connect.php");
+    
+	$result = mysql_query('SELECT * FROM Department_Allocate_IP');
+    if (!$result)
+	{
+		echo '執行SQL查詢失敗:'.mysql_error();
+        exit;
+    }
+?>
+<html>
+		<!-- 
+        "<meta http-equiv="Content-Type" content="text/html; charset=utf-8">" 這一行可以解決IE理中文亂碼問題
+		-->
+    <head>
+	    <meta http-equiv="Content-Type" content="text/html; charset=utf8">
+		<title>中興大學校園網路管理系統</title>
+	    <style type="text/css">
+	
+			table 
+			{
+				text-align:center;
+				border-spacing: 1px;
+				border: 1px solid #aeb3b6;
+				border-collapse: collapse;
+				border-color:#330033
+			}
+
+			caption
+			{
+				font-size: 1.5em	
+			}
+
+			th
+			{
+				background-color: #F0F
+			}
+
+			tr:nth-child(even) 
+			{
+				background: #39F
+			}
+	
+			tr:nth-child(odd) 
+			{
+				background: #FFF
+			}
+		</style>
+	</head>
+<body>
+    <h1 align="center">中興大學校園網路管理系統</h1>
+        
+		<!--
+            Form 表單遇到 table真的是有夠給他麻煩的啦~~~~~~!!!!form 要盡量放在table外面不然會很難看
+            這邊亂七八糟的我都搞不清楚哪個form是哪個</form>了~~~
+		-->
+
+	<p align="center"><a href="adm_search.php">重新搜尋</a><a href="<?php $_SERVER["PHP_SELF"] ?>?id=all_data">顯示全部</a><a href="adm_home.php">回到首頁</a></p>
+    <form action="<?php $_SERVER["PHP_SELF"] ?>" method="post" name="ip_search">
+	<table align="center">
+        <tr>
+            <td>
+			    <strong>輸入IP搜尋: </strong>
+		    </td>
+	        <td>
+		        <input type="text" name="ip">
+				<input type="submit"  value="搜尋" name="ip_search" >
+            </td>
+		</tr> 
+   </table>
+        </form>
+        <form action="<?php $_SERVER["PHP_SELF"] ?>" method="post" name="department_search">
+   <table align="center">
+        <tr>
+           <td>
+		       <strong>選擇系所單位搜尋: </strong>
+		   </td>
+           <td>
+                <select name="department">
+					<?php
+						$result = mysql_query('SELECT * FROM Department_MIS_Management');
+						while ($row = mysql_fetch_assoc($result))
+						{
+							echo "<option value=".$row['department'].">".$row['department']."</option>";  
+						} 
+      				?>
+		        </select>
+				<input type="submit"  value="搜尋" name="department_search">
+			</td>
+		</tr>  
+	</table>
+</form>
+
+<?php
+    if(isset($_POST['ip_search']))
+	{
+        $ip = $_POST['ip'];	
+	    $sql = "select * from Department_Allocate_IP where inet_aton('$ip') between inet_aton(start_ip) and inet_aton(end_ip)"; 
+        $result = mysql_query($sql);
+		if (mysql_num_rows($result) == 0 )
+		{
+			echo "<p align='center'>"; 
+			echo "此ip不屬於任何ip區段";
+			echo "</p>";
+		}
+		
+		else
+		{
+			echo   "<div align=center>";
+			echo   "您查詢的IP位址為： {$ip}，此IP屬於下列網段";   //用單引號會直接顯示$k 一定要用分號才抓得到
+			echo   "<table width='1600' cellspacing='0' border='1'>";
+			echo   "<tr>";	  
+			echo   "<th width='80'>功能</th>"; 		
+			echo   "<th width='100'>Start_ip</th>";
+			echo   "<th width='100'>End_ip</th>";
+			echo   "<th width='100'>Submask</th>";
+            echo   "<th width='100'>Gateway_ip</th>";			
+			echo   "<th width='300'>系所單位</th>";
+			echo   "<th width='150'>負責網管</th>";
+			echo   "<th width='150'>職稱</th>";
+			echo   "<th width='120'>電話</th>";
+			#echo   "<th width='300'>E-mail</th>";
+			echo   "</tr>";
+			while ($row = mysql_fetch_array($result)) 
+			{
+				echo  "<tr>";
+				echo  "<input name='sn' type='hidden' value=".$row['sn'].">";
+				echo  "<td rowspan='3'><a href='del.php?id=".$row['sn']."'>刪除</a>";
+				echo  "<br>";
+				echo  "<a href='edit.php?id=".$row['sn']."'>編輯</a></td>";
+				echo  "<td >{$row['start_ip']}</td>";
+				echo  "<td >{$row['end_ip']}</td>";
+				echo  "<td >{$row['submask']}</td>";
+				echo  "<td >{$row['gateway_ip']}</td>";
+				echo  "<td >{$row['department']}</td>";
+				echo  "<td >{$row['name']}</td><br>";
+				echo  "<td >{$row['title']}</td><br>";
+				echo  "<td >{$row['tel']}</td><br>";
+				#echo  "<td >{$row['email']}</td><br>";
+				echo  "</tr>";
+				echo  '<tr>
+					   <th width="300">E-mail</th>
+                       <th width="300">所在位置</th> 				
+	        	       <th width="250">連結的設備名稱</th>
+		      	       <th width="220">設備上的介面</th>
+				       <th width="250">連結的Wan_port_ip</th>             
+      				   <th width="250">對方的設備名稱</th>
+		    		   <th width="250">對方的Wan_port_ip</th>
+					   <th width="300">備註</th>
+		               </tr>';
+				echo   "<tr>";
+				echo   "<td >{$row['email']}</td>
+						<td >{$row['location']}</td>
+						<td >{$row['switch']}</td>
+						<td >{$row['switch_port_no']}</td>
+						<td >{$row['switch_port_ip']}</td>
+						<td >{$row['link_switch']}</td>
+						<td >{$row['link_ip']}</td>
+						<td >{$row['note']}</td>
+						</tr>";
+       		}
+
+			echo  '</table>';
+			echo  "</div>";
+		}
+
+	mysql_query($sql,$link) or die ("找不到資料".mysql_error());
+	mysql_close($link);
+    exit;  
+	}
+
+	if(isset($_POST['department']))
+	{
+		$department = $_POST['department'];
+		$sql = "select start_ip,end_ip,submask  from Department_Allocate_IP where department like '$department' "; 
+	    $sql2 = "select department,name,tel,email,location,switch ,port_no ,port_ip ,link_switch ,link_ip from Department_Allocate_IPwhere department like '$department' "; 
+        $result=mysql_query($sql);
+	    $result2=mysql_query($sql2);
+	 	if (mysql_num_rows($result) == 0 )
+    	{
+      		echo "<p align='center'>"; 
+			echo "此單位未分配任何ip區段";
+			echo "</p>";
+		}
+		if (mysql_num_rows($result) > 0 )
+		{
+  			echo  '<div align="center">';
+			echo  "{$_POST['department']} 有下列IP";   //用單引號會直接顯示$k 一定要用分號才抓得到 
+			echo  "<br>";
+			echo   '<table class="table">
+		  			<tr class="headerrow">	  
+		     		<th>功能</th> 		
+					<th>Start_ip</th>
+		      		<th>End_ip</th>
+				    <th>Submask</th>             
+
+					</tr>';
+
+
+			while ($row = mysql_fetch_array($result))
+			{
+
+				echo  "<tr>";
+				echo  '<input name="sn" type="hidden" value='.$row['sn'].'>';
+				echo  "<td class=datarowodd><a href='del.php?id=".$row['sn']."'>刪除</a> ";
+				echo  "<a href='edit.php?id=".$row['sn']."'>編輯</a></td>";
+				echo  "<td class=dataroweven>{$row['start_ip']}</td>
+        		   <td class=datarowodd>{$row['end_ip']}</td>        
+			  	   <td class=dataroweven>{$row['submask']}</td>  
+				   </tr>";
+
+            }
+
+			echo '</table>';
+			if (mysql_num_rows($result2) > 0 )
+			{
+				echo   '<table class="table" ">
+		           <tr class="headerrow">	  
+	        			
+				     <th>系所單位</th>
+		      		 <th>負責人</th>
+				     <th>電話</th>             
+      				 <th>E-mail</th>
+		    		 <th>所在位置</th>
+					 <th>連結的設備名稱</th>
+		      		 <th>設備上的介面</th>
+				     <th>連結的Wan_port_ip</th>             
+      				 <th>對方的設備名稱</th>
+		    		 <th>對方的Wan_port_ip</th>
+		           </tr>';
+					$row2 = mysql_fetch_array($result2);
+				   echo  " 
+                   <td class=datarowodd>{$row2['department']}</td>
+                   <td class=dataroweven>{$row2['name']}</td>
+                   <td class=datarowodd>{$row2['tel']}</td><br>
+				   <td class=dataroweven>{$row2['email']}</td><br>
+				   <td class=dataroweven>{$row2['location']}</td><br>
+				   <td class=dataroweven>{$row2['switch']}</td>
+             	   <td class=datarowodd>{$row2['port_no']}</td>
+                   <td class=dataroweven>{$row2['port_ip']}</td>
+                   <td class=datarowodd>{$row2['link_switch']}</td>
+                   <td class=dataroweven>{$row2['link_ip']}</td>
+				   </tr>";
+		echo  "<tr>";
+			
+		echo  "<td class=dataroweven>{$row['switch']}</td>
+             	       <td class=datarowodd>{$row['port_no']}</td>
+                       <td class=dataroweven>{$row['port_ip']}</td>
+                       <td class=datarowodd>{$row['link_switch']}</td>
+                       <td class=dataroweven>{$row['link_ip']}</td>
+	               </tr>";
+		echo '</table>';
+			}
+  	    echo "</div>";
+  	    exit;
+		}
+
+		
+	mysql_query($sql,$link) or die ("找不到資料".mysql_error());
+	mysql_close($link);
+	}
+	
+if((isset($_GET["id"]) && ($_GET["id"]=="all_data"))){
+
+	echo '<div align="center">';
+    echo "目前資料數量： ";
+	echo  mysql_num_rows($result);
+	echo "筆資料。";
+   	echo '<table class="table">
+          <tr class="headerrow">
+          <th>功能</th> 		
+	 	  <th>Start_ip</th>
+		  <th>End_ip</th>
+	      <th>Submask</th>             
+      	  <th>系所單位</th>
+		  <th>負責人</th>
+   	      <th>電話</th>
+		  <th>E-mail</th>
+		  <th>所在位置</th>
+		  
+		  </tr>';
+ 	while ($row = mysql_fetch_assoc($result))
+   {        
+       echo "<tr>";
+       echo  '<input name="sn" type="hidden" value='.$row['sn'].'>';
+	   echo  "<td class=datarowodd><a href='del.php?id=".$row['sn']."'>刪除</a> ";
+ 	   echo  "<a href='edit.php?id=".$row['sn']."'>編輯</a>";
+	   echo  "<td class=dataroweven>".$row['start_ip'];
+	   echo  "<td class=datarowodd>".$row['end_ip'];
+	   echo  "<td class=dataroweven>".$row['submask'];
+	   echo  "<td class=datarowodd>".$row['department'];
+	   echo  "<td class=dataroweven>".$row['name'];      
+	   echo  "<td class=datarowodd>".$row['tel'];
+       echo	 "<td class=dataroweven>".$row['email'];
+	   echo	 "<td class=dataroweven>".$row['location'];
+	   echo  "</td>"; 
+       echo  "<tr>";
+       	 
+   }
+   echo "</table>";
+   echo "</div>";
+   exit;
+   
+  }
+ 
+?>
+</body>
+</html>	
+ 
+ 

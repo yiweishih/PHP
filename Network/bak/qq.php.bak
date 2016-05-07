@@ -1,0 +1,14 @@
+<?php 
+include("mysql_connect.php");
+	
+	
+	$test = ("select * Department_Allocate_IP");
+	$test_result = mysql_query($test);
+	
+	while($row = mysql_fetch_assoc($test_result)) 
+	{
+		
+		$a =  $row['department'];
+		echo $a;
+	}
+?>

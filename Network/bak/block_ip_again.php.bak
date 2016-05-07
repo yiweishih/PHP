@@ -1,0 +1,71 @@
+<?php
+    session_start();
+	header("Cache-control:private");    //讓填過的資料不消失
+    if(!isset($_SESSION["account"]) || ($_SESSION["account"]==""))
+	{
+        header("Location: login.php");
+    }
+     
+	include("mysql_connect.php");
+	
+	$ip_query = "SELECT * FROM Block_IP_List where sn =".$_GET["id"];
+	$ip_query_result = mysql_query($ip_query);
+    $ip_query_row = mysql_fetch_assoc($ip_query_result);
+	$ip = explode(".",$ip_query_row['ip']);
+	$ip3 = $ip[2];
+	$ip4 = $ip[3];
+	
+	
+	if(isset($_POST["action"]) && ($_POST["action"]=="process"))
+	{
+		$process = '待處理';
+		$sn = $_POST['sn'];
+		$ip_process = "update Block_IP_List set process='$process' where sn='$sn'"; 
+	    mysql_query($ip_process) or die('Update fail' . mysql_error());	
+	    header("Location: block_ip_list.php");
+	}	
+?>
+<html>
+    <head>
+	    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>回報IP處理情形</title>
+    </head>
+<body>
+	<h1 align="center">中興大學網校園網路管理系統 -- 回復阻斷</h1>
+	<p align="center"><a href="block_ip_list.php">返回上一頁</a></p>
+
+	<form action="" method="post">
+    <table border="1" align="center" cellpadding="4">
+        <tr>
+            <th>欄位</th>
+			<th>資料</th>
+        </tr>
+        <tr>
+			<td>請輸入IP位置<strong>:</strong></td>
+			<td>
+			<input name="ip1" type="text" size="3" maxlength="3" value="140" readonly ><strong>.</strong>
+    		<input name="ip2" type="text" size="3" maxlength="3" value="120" readonly ><strong>.</strong>
+		    <input name="ip3" type="text" size="3" maxlength="3" value="<?php echo $ip3;?>" readonly><strong>.</strong>
+		    <input name="ip4" type="text" size="3" maxlength="3" value="<?php echo $ip4;?>" readonly>
+			</td>
+        </tr>
+		<tr>
+			<td>原因<strong>:</strong></td>
+			<td><textarea name="reason" rows="2" cols="30" readonly><?php echo $ip_query_row['reason'];?></textarea></td>      <!--textarea 沒有value.... -->
+		</tr>
+		<tr>
+			<td>處理情形<strong>:</strong></td>
+			<td><textarea name="note" rows="8" cols="60" readonly><?php echo $ip_query_row['note'];?></textarea></td>
+		</tr>
+		<tr>     
+			<td colspan="2" align="center">
+				<input name="sn" type="hidden" value="<?php echo $ip_query_row['sn'];?>">
+				<input name="action" type="hidden" value="process">
+				<input type="submit" value="回復阻斷">
+				<input type="reset"  value="重新填寫">
+			</td>
+		</tr>
+    </table>
+    </form>			
+</body>
+</html>	

@@ -1,0 +1,110 @@
+<?php
+    session_start();
+	header("Cache-control:private");    //讓填過的資料不消失
+    if(!isset($_SESSION["account"]) || ($_SESSION["account"]==""))
+	{
+        header("Location: login.php");
+    }
+     
+	include("mysql_connect.php");
+	
+	if(isset($_POST["action"]) && ($_POST["action"]=="delete"))	
+	{  
+	    $query = "delete  from Department_MIS_Management where sn = ".$_POST['sn'];
+        mysql_query($query) or die('DELETE fail' . mysql_error());
+	    header("Location: department_mis_management.php"); 
+	}
+
+	$department_query = "SELECT * FROM  Department_MIS_Management WHERE  sn =".$_GET["id"];  
+	$department_query_result = mysql_query($department_query);
+	$department_query_row = mysql_fetch_assoc($department_query_result);
+
+?>
+
+
+
+<html>
+    <head>
+	    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>新增資料</title>
+    </head>
+<body>
+<div align="center">
+	  <p><img src="images/logo.jpg" width="551" height="66"></p>
+	</div>
+
+	<div align="center">
+	  <table width="1000" height="370" border="0">
+	    <tr bgcolor="#CCFFCC">
+	      <th width="200" height="30" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="department_mis_management.php">返回上一頁</a></div></th>
+	      <th width="200" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="add.php">IP資料新增</a></div></th>
+	      <th width="200" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="adm_search.php">IP資料查詢</a></div></th>
+	      <th width="200" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="block_ip_list.php">IP阻斷名單</a></div></th>
+	      <th width="200" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="adm_home.php?logout=true">登出</a></div></th>
+        </tr>
+	    <tr bgcolor="#CCFFCC">
+	      <th colspan="5" align="center" valign="middle" bgcolor="#FFFFFF" scope="col"><p></p><div align="center">
+          <form action="" method="post">
+    <table width="600" border="0" align="center" cellpadding="4">
+        <tr>
+            <th bgcolor="#CC99CC">欄位</th>
+			<th bgcolor="#CC99CC">資料</th>
+        </tr>
+        <tr>
+			<td bgcolor="#99FF00"><div align="center">系所單位<strong>:</strong></div></td>
+			<td bgcolor="#99FF00"><div align="left">
+			  <input type="text" name="department" value="<?php echo $department_query_row['department'];?>" readonly>
+			  </div></td>
+        </tr>
+        <tr>
+			<td bgcolor="#99FF00"><div align="center">負責人<strong>:</strong></div></td>
+			<td bgcolor="#99FF00"><div align="left">
+			  <input type="text" name="name" value="<?php echo $department_query_row['name'];?>" readonly>
+			  </div></td>
+        </tr>
+         <tr>
+			<td bgcolor="#99FF00"><div align="center">職稱<strong>:</strong></div></td>
+			<td bgcolor="#99FF00"><div align="left">
+			  <input type="text" name="title" value="<?php echo $department_query_row['title'];?>" readonly>
+			  </div></td>
+        </tr>
+		<tr>
+			<td bgcolor="#99FF00"><div align="center">電話號碼<strong>:</strong></div></td>
+			<td bgcolor="#99FF00" ><div align="left">
+			  <input type="text" name="tel" value="<?php echo $department_query_row['tel'];?>" readonly>
+			  </div></td>
+        </tr>
+        <tr>
+			<td bgcolor="#99FF00"><div align="center">E-mail<strong>:</strong></div></td>
+			<td bgcolor="#99FF00"> <div align="left">
+			  <input type="text" name="email" value="<?php echo $department_query_row['email'];?>" readonly>
+			  </div></td>
+		</tr>
+        <tr>
+			<td bgcolor="#99FF00"><div align="center">所在位置<strong>:</strong></div></td>
+			<td bgcolor="#99FF00"><div align="left">
+			  <input type="text" name="location" value="<?php echo $department_query_row['location'];?>" readonly>
+			  </div></td>
+		</tr>
+		<tr>
+			<td bgcolor="#99FF00"><div align="center">備註<strong>:</strong></div></td>
+			<td bgcolor="#99FF00"><div align="left">
+			  <textarea name="note" rows="5" cols="50" readonly><?php echo $department_query_row['note'] ?></textarea>
+			  </div></td>
+		</tr>
+		<tr>     
+			<td colspan="2" align="center" bgcolor="#CC99FF"><div align="center">
+			  <input name="sn" type="hidden" value="<?php echo $department_query_row['sn'];?>">
+			  <input name="action" type="hidden" value="delete">
+			  <input type="submit" value="刪除資料">&nbsp;
+			  <input type="reset" value="重新填寫">
+			  </div></td>
+		</tr>
+    </table>
+    </form>			
+          </div></th>
+        </tr>
+      </table>
+    </div>
+</body>
+</html>	

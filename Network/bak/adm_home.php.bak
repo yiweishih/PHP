@@ -1,0 +1,40 @@
+<?php 
+    session_start();
+    if(!isset($_SESSION["account"]) || ($_SESSION["account"]==""))
+	{
+        header("Location: login.php");
+    }
+    if(isset($_GET["logout"]) && ($_GET["logout"]=="true"))
+	{
+	    session_unset();              //斷掉所有session
+	    header("Location: login.php");
+	}
+    
+	include("mysql_connect.php");
+?>
+<html>
+    <head>
+ 	    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	    <title>中興大學校園網路管理系統</title>
+    </head>
+	<body>
+	<div align="center">
+	  <p><img src="images/logo.jpg"  width="551" height="66"></p>
+	</div>
+
+	<div align="center">
+	  <table width="1000" height="370" border="0">
+	    <tr bgcolor="#CCFFCC">
+	      <th width="200" height="30" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="department_mis_management.php">網管清單</a></div></th>
+	      <th width="200" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="add.php">IP資料新增</a></div></th>
+	      <th width="200" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="adm_search.php">IP資料查詢</a></div></th>
+	      <th width="200" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="block_ip_list.php">IP阻斷名單</a></div></th>
+	      <th width="200" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="adm_home.php?logout=true">登出</a></div></th>
+        </tr>
+	    <tr bgcolor="#CCFFCC">
+	      <th colspan="5" align="center" valign="middle" bgcolor="#FFFFFF" scope="col"><div align="center"></div></th>
+        </tr>
+      </table>
+    </div>
+	</body>
+</html> 

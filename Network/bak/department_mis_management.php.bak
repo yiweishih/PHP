@@ -1,0 +1,101 @@
+<?php
+    session_start();
+    if(!isset($_SESSION["account"]) || ($_SESSION["account"]==""))
+	{
+        header("Location: login.php");
+    }
+    if(isset($_GET["logout"]) && ($_GET["logout"]=="true"))
+	{
+	    unset($_SESSION["account"]);
+	    header("Location: login.php");
+	}
+    
+	include("mysql_connect.php");
+	$result = mysql_query('SELECT * FROM Department_MIS_Management');
+	if (!$result)
+	{
+        echo '執行SQL資料表查詢失敗:'.mysql_error();
+    	exit;
+    }
+?>
+<html>
+    <head>
+ 	    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	    <title>中興大學校園網路管理系統</title>
+    </head>
+	<body>
+	<div align="center">
+	  <p><img src="images/logo.jpg" alt="會員系統" width="551" height="66"></p>
+	</div>
+	<div align="center">
+ <table width="1000" height="36" border="0">   
+ <tr bgcolor="#CCFFCC">
+	      	    <th width="166" height="30" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="department_add.php">新增網管資料</a></div></th>
+      <th width="166" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="add.php">IP資料新增</a></div></th>
+	      		<th width="166" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="adm_search.php">IP資料查詢</a></div></th>
+	      		<th width="166" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="block_ip_list.php">IP阻斷名單</a></div></th>
+	     		<th width="166" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="adm_home.php">回到首頁</a></div></th>
+	      		<th width="166" align="center" valign="middle" bgcolor="#99FFCC" scope="col"><div align="center"><a href="adm_home.php?logout=true">登出</a></div></th>
+    </tr>
+      </table>
+	  
+ 
+		<?php
+		   while ($row = mysql_fetch_assoc($result))
+           {    
+			echo '	    
+	       
+            
+	     
+	        <th colspan="6" align="center" valign="middle" bgcolor="#FFFFFF" scope="col"><div align="center">
+	        <table width="1000" height="123" border="0">
+	          <tr>
+	            <th width="150" height="27" bgcolor="#FF0033" scope="col"><div align="center">功能</div></th>
+	            <th width="400" bgcolor="#FF0033" scope="col"><div align="center">單位</div></th>
+	            <th width="150" bgcolor="#FF0033" scope="col"><div align="center">負責網管</div></th>
+	            <th width="150" bgcolor="#FF0033" scope="col"><div align="center">職稱</div></th>
+	            <th width="150" bgcolor="#FF0033" scope="col"><div align="center">電話</div></th>
+              </tr>';
+              
+				echo  "<tr>";       	
+				echo  "<input name='sn' type='hidden' value=".$row['sn'].">";
+				echo  "<td rowspan='3' bgcolor='#FFFFCC'><div align='center'>";
+				echo  "<a href='department_del.php?id=".$row['sn']."'>刪除</a>";
+				echo  "<br>";
+				echo  "<a href='department_edit.php?id=".$row['sn']."'>編輯</a>";
+				echo  "</div></td>";
+				echo  "<td bgcolor='#FFFFCC'><div align='center'>".$row['department']."</div></td>";
+				echo  "<td bgcolor='#FFFFCC'><div align='center'>".$row['name']."</div></td>";
+				echo  "<td bgcolor='#FFFFCC'><div align='center'>".$row['title']."</div></td>";
+				echo  "<td bgcolor='#FFFFCC'><div align='center'>".$row['tel']."</div></td>";
+				echo "</tr>";
+echo '
+              
+	          <tr>
+	            <th height="30" bgcolor="#FF0033"><div align="center">E-mail</div></th>
+	            <th bgcolor="#FF0033"><div align="center">所在位置</div></th>
+	            <th colspan="2" bgcolor="#FF0033"><div align="center">備註</div><div align="center"></div></th>
+             </tr>       
+            ';
+			
+            echo  "<tr>";  
+			echo  "<td bgcolor='#FFFFCC'><div align='center'>".$row['email']."</div></td>";
+				echo  "<td bgcolor='#FFFFCC'><div align='center'>".$row['location']."</div></td>";
+				echo  "<td  colspan='2' bgcolor='#FFFFCC'><div align='center'>".$row['note']."</div></td>";
+			
+				echo "</tr>";
+			echo "</table>";
+						
+			echo "<hr size='5' width ='1000'color='66FF66' align='center'>";
+			     
+
+
+			} 
+      echo  '<p align="center">目前總共有：'; 
+			echo mysql_num_rows($result);
+			echo "筆資料。</p>";
+	    ?>      
+	
+	</div>
+</body>
+</html>
